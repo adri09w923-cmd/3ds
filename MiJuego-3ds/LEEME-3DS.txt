@@ -1,0 +1,43 @@
+MOTOR DE BLOQUES - REPRODUCTOR 3DS (C++)
+=========================================
+Desde el editor: Proyecto > Exportar C++ para 3DS...  (elige la consola en el menu "Consola" antes).
+Se crea una carpeta con: source/ (C++), Makefile y romfs/game.scbproj (tu juego, sin texturas/sonidos/videos).
+
+Compilar (necesitas devkitPro con devkitARM, libctru, citro2d y citro3d):
+    dkp-pacman -S 3ds-dev
+    make
+Resultado: MotorBloques3DS.3dsx -> copialo a /3ds/ en la SD y abrelo con Homebrew Launcher (3DS con CFW/homebrew).
+
+Probar la logica en PC (sin 3DS):
+    g++ -std=c++17 -O2 host_test.cpp source/core.cpp -o host_test
+    ./host_test romfs/game.scbproj plat
+
+ESTADO (v1) - lo que SI hace
+  - Lee el proyecto y ejecuta bloques: eventos, control, variables, movimiento, operadores, escenas, camara 3D,
+    "chocar con" y "tocando". La logica coincide con la del motor Java (probado con los assets).
+  - Entrada: cruz/stick = flechas y WASD, A = espacio, START = enter, B/X/Y = z/x/c, L/R = q/e, pantalla tactil = mouse.
+  - Pantalla de arriba: escenas 2D (rectangulos de color, etiquetas, botones) y 3D como cajas planas con perspectiva.
+  - Pantalla de abajo: RAM real usada / limite de la consola (letras rojas si se pasa). SELECT sale.
+LO QUE FALTA: texturas/imagenes, sonido, 3D con caras, guardado de partida, red y Google. Esos bloques se ignoran.
+Nota: esta capa de 3DS no se pudo probar en una consola real; el nucleo (core.cpp) si esta probado en PC.
+
+SEGUNDA PANTALLA: si el proyecto tiene una escena asignada en Consola > Segunda pantalla, se dibuja en la pantalla de abajo (320x240) y el tactil apunta a ella.
+  Prueba en PC: ./host_test romfs/game.scbproj dos
+
+== Exportar .CIA ==
+Editor: Archivo > Exportar juego > "CIA para 3DS". Crea la carpeta del proyecto + build-cia.bat / build-cia.sh
+(icono y banner salen del icono de tu app). Necesitas devkitPro (3ds-dev), bannertool y makerom en el PATH.
+Si el editor los encuentra, crea juego.cia solo; si no, ejecuta build-cia. Instala el .cia con FBI.
+Sin probar en consola real.
+
+== Sonidos y texturas en 3DS ==
+Texturas: 2D reducidas a la mitad (máx. 64 px, potencia de 2); las usadas en 3D van a 128x128. Se ven en objetos 2D y 3D (caja plana).
+Sonidos: tocar sonido / hasta que termine / música en bucle / detener. Solo WAV (se convierte a mono 16 kHz, máx. 30 s). mp3/ogg se omiten.
+Necesita el dump del DSP (dspfirm.cdc) en la 3DS para oír audio. Sin probar en consola real.
+
+3DSX: Exportar juego > 3DSX para 3DS (crea build-3dsx; devkitPro y make). Copia el .3dsx a /3ds/.
+
+== Sin instalar nada: GitHub ==
+Al exportar se crea .github/workflows/compilar.yml. Crea un repositorio en github.com, sube TODO el contenido de la carpeta -3ds
+(incluida la carpeta oculta .github; usa "Upload files" arrastrando la carpeta o git), abre la pestaña Actions y espera.
+Al terminar, en Artifacts baja "juego-3ds" (juego.cia y .3dsx). Sin probar: si falla, copia el error del log.
